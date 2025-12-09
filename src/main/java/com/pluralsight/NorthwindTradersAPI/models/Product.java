@@ -2,25 +2,25 @@ package com.pluralsight.NorthwindTradersAPI.models;
 
 public class Product {
 
-    private long productId;
+    private int productId;
     private String productName;
     private String categoryName;
     private double unitPrice;
 
     public Product() {}
 
-    public Product(long productId, String productName, String categoryName, double unitPrice) {
+    public Product(int productId, String productName, String categoryName, double unitPrice) {
         this.productId = productId;
         this.productName = productName;
         this.categoryName = categoryName;
         this.unitPrice = unitPrice;
     }
 
-    public long getProductId() {
+    public int getProductId() {
         return productId;
     }
 
-    public void setProductId(long productId) {
+    public void setProductId(int productId) {
         this.productId = productId;
     }
 

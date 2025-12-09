@@ -24,7 +24,7 @@ public class CategoryDao {
         BasicDataSource dataSource = new BasicDataSource();
         dataSource.setUrl(url);
         dataSource.setUsername(userName);
-        dataSource.setUsername(password);
+        dataSource.setPassword(password);
         this.dataSource = dataSource;
     }
 

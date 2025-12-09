@@ -3,6 +3,7 @@ package com.pluralsight.NorthwindTradersAPI.daos;
 import com.pluralsight.NorthwindTradersAPI.models.Product;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
@@ -14,16 +15,16 @@ import java.util.ArrayList;
 @Component
 public class ProductDao {
 
-    private static final String[] USER_INFO = {"root", "yearup"};
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/northwind";
     private final BasicDataSource dataSource;
 
     @Autowired
-    public ProductDao() {
+    public ProductDao(@Value("${datasource.url}") String url,
+                      @Value("${datasource.username}") String userName,
+                      @Value("${datasource.password}") String password) {
         BasicDataSource dataSource = new BasicDataSource();
-        dataSource.setUrl(DB_URL);
-        dataSource.setUsername(USER_INFO[0]);
-        dataSource.setUsername(USER_INFO[1]);
+        dataSource.setUrl(url);
+        dataSource.setUsername(userName);
+        dataSource.setPassword(password);
         this.dataSource = dataSource;
     }
 
@@ -38,7 +39,7 @@ public class ProductDao {
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
-                    Product product = new Product(resultSet.getLong("ProductID"), resultSet.getString("ProductName"),
+                    Product product = new Product(resultSet.getInt("ProductID"), resultSet.getString("ProductName"),
                             resultSet.getString("CategoryName"), resultSet.getDouble("UnitPrice"));
 
                     products.add(product);
@@ -54,15 +55,19 @@ public class ProductDao {
         return null;
     }
 
-    public Product getProductById(long id) {
+    public Product getProductById(int id) {
 
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM products WHERE ProductID = ?;")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM products\n" +
+                     "JOIN northwind.categories\n" +
+                     "ON northwind.categories.CategoryID = northwind.products.CategoryID WHERE ProductID = ?;")) {
+
+            preparedStatement.setInt(1, id);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 resultSet.next();
 
-                return new Product(resultSet.getLong("ProductID"), resultSet.getString("ProductName"),
+                return new Product(resultSet.getInt("ProductID"), resultSet.getString("ProductName"),
                         resultSet.getString("CategoryName"), resultSet.getDouble("UnitPrice"));
             }
 
