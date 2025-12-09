@@ -60,7 +60,8 @@ public class ProductDao {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM products\n" +
                      "JOIN northwind.categories\n" +
-                     "ON northwind.categories.CategoryID = northwind.products.CategoryID WHERE ProductID = ?;")) {
+                     "ON northwind.categories.CategoryID = northwind.products.CategoryID\n"  +
+                     "WHERE ProductID = ?;")) {
 
             preparedStatement.setInt(1, id);
 
