@@ -6,10 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 
 @Component
@@ -91,15 +88,17 @@ public class ProductDao {
             preparedStatement.setDouble(3, product.getUnitPrice());
 
             int rowsAffected = preparedStatement.executeUpdate();
+
             ResultSet generatedKey = preparedStatement.getGeneratedKeys();
             generatedKey.next();
+
             System.out.println("Adding " + rowsAffected + " records to products.");
 
-            product.setProductId(generatedKey.getInt(1));
+            int id = generatedKey.getInt(1);
 
             generatedKey.close();
 
-            return product;
+            return getProductById(id);
 
         } catch (SQLException e) {
             System.err.println("An error occurred: " + e);
