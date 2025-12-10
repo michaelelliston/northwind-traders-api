@@ -95,9 +95,9 @@ public class ProductDao {
             generatedKey.next();
             System.out.println("Adding " + rowsAffected + " records to products.");
 
+            product.setProductId(generatedKey.getInt(1));
 
-
-            return new Product(generatedKey.getInt(1), product.getProductName(), product.getCategoryName(), product.getUnitPrice(), product.getCategoryId());
+            return product;
 
         } catch (SQLException e) {
             System.err.println("An error occurred: " + e);
