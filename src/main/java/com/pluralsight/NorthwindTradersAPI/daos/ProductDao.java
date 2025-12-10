@@ -97,6 +97,8 @@ public class ProductDao {
 
             product.setProductId(generatedKey.getInt(1));
 
+            generatedKey.close();
+
             return product;
 
         } catch (SQLException e) {
