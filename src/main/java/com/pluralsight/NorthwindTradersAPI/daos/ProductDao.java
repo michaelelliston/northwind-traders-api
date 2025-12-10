@@ -40,7 +40,7 @@ public class ProductDao {
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
                     Product product = new Product(resultSet.getInt("ProductID"), resultSet.getString("ProductName"),
-                            resultSet.getString("CategoryName"), resultSet.getDouble("UnitPrice"));
+                            resultSet.getString("CategoryName"), resultSet.getDouble("UnitPrice"), resultSet.getInt("CategoryID"));
 
                     products.add(product);
                 }
@@ -60,7 +60,7 @@ public class ProductDao {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM products\n" +
                      "JOIN northwind.categories\n" +
-                     "ON northwind.categories.CategoryID = northwind.products.CategoryID\n"  +
+                     "ON northwind.categories.CategoryID = northwind.products.CategoryID\n" +
                      "WHERE ProductID = ?;")) {
 
             preparedStatement.setInt(1, id);
@@ -69,13 +69,39 @@ public class ProductDao {
                 resultSet.next();
 
                 return new Product(resultSet.getInt("ProductID"), resultSet.getString("ProductName"),
-                        resultSet.getString("CategoryName"), resultSet.getDouble("UnitPrice"));
+                        resultSet.getString("CategoryName"), resultSet.getDouble("UnitPrice"), resultSet.getInt("CategoryID"));
             }
 
         } catch (SQLException e) {
             System.err.println("An error occurred: " + e);
         }
 
+        return null;
+    }
+
+    public Product addProduct(Product product) {
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO products (ProductName, CategoryID, UnitPrice)\n" +
+                     "VALUES (?, ?, ?);", PreparedStatement.RETURN_GENERATED_KEYS)) {
+
+
+            preparedStatement.setString(1, product.getProductName());
+            preparedStatement.setInt(2, product.getCategoryId());
+            preparedStatement.setDouble(3, product.getUnitPrice());
+
+            int rowsAffected = preparedStatement.executeUpdate();
+            ResultSet generatedKey = preparedStatement.getGeneratedKeys();
+            generatedKey.next();
+            System.out.println("Adding " + rowsAffected + " records to products.");
+
+
+
+            return new Product(generatedKey.getInt(1), product.getProductName(), product.getCategoryName(), product.getUnitPrice(), product.getCategoryId());
+
+        } catch (SQLException e) {
+            System.err.println("An error occurred: " + e);
+        }
         return null;
     }
 }
