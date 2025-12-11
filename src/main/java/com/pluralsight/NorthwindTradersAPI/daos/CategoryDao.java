@@ -67,4 +67,71 @@ public class CategoryDao {
         }
         return null;
     }
+
+    public Category addCategory(Category category) {
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO categories (CategoryName, CategoryID)\n" +
+                     "VALUES (?, ?);", PreparedStatement.RETURN_GENERATED_KEYS)) {
+
+
+            preparedStatement.setString(1, category.getCategoryName());
+            preparedStatement.setLong(2, category.getCategoryId());
+
+            int rowsAffected = preparedStatement.executeUpdate();
+
+            ResultSet generatedKey = preparedStatement.getGeneratedKeys();
+            generatedKey.next();
+
+            System.out.println("Adding " + rowsAffected + " records to products.");
+
+            long id = generatedKey.getLong(1);
+
+            generatedKey.close();
+
+            return getCategoryById(id);
+
+        } catch (SQLException e) {
+            System.err.println("An error occurred: " + e);
+        }
+        return null;
+    }
+
+    public void updateCategoryById(long id, Category category) {
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE categories SET CategoryName = ? WHERE CategoryID = ?;")) {
+
+            preparedStatement.setString(1, category.getCategoryName());
+            preparedStatement.setLong(2, category.getCategoryId());
+
+            int rowsUpdated = preparedStatement.executeUpdate();
+            System.out.println("Rows updated: " + rowsUpdated);
+
+            if (rowsUpdated != 1) {
+                System.err.println("Error. A problem occurred when updating a product: " + id);
+                throw new RuntimeException("Number of rows updated didn't equal 1");
+            }
+        } catch (SQLException e) {
+            System.err.println("An error occurred: " + e);
+        }
+    }
+
+    public void deleteCategoryById(long id) {
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM categories WHERE CategoryID = ?;")) {
+
+            preparedStatement.setLong(1, id);
+
+            int rowsDeleted = preparedStatement.executeUpdate();
+            if (rowsDeleted != 1) {
+                System.err.println("Error. A problem occurred when deleting a product: " + id);
+                throw new RuntimeException("Number of rows deleted didn't equal 1");
+            }
+
+        } catch (SQLException e) {
+            System.err.println("An error occurred: " + e);
+        }
+    }
 }
