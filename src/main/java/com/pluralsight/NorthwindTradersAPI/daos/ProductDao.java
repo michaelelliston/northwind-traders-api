@@ -105,4 +105,44 @@ public class ProductDao {
         }
         return null;
     }
+
+    public void updateProductById(int productId, Product product) {
+
+        try (Connection connection = dataSource.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement("UPDATE products SET ProductName = ?, CategoryID = ?, UnitPrice = ? WHERE ProductID = ?;")) {
+
+            preparedStatement.setString(1, product.getProductName());
+            preparedStatement.setInt(2, product.getCategoryId());
+            preparedStatement.setDouble(3, product.getUnitPrice());
+            preparedStatement.setInt(4, product.getProductId());
+
+            int rowsUpdated = preparedStatement.executeUpdate();
+            System.out.println("Rows updated: " + rowsUpdated);
+
+            if (rowsUpdated != 1) {
+                System.err.println("Error. A problem occurred when updating a product: " + productId);
+                throw new RuntimeException("Number of rows updated didn't equal 1");
+            }
+        } catch (SQLException e) {
+            System.err.println("An error occurred: " + e);
+        }
+    }
+
+    public void deleteProductById(int productId) {
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM products WHERE ProductID = ?;")) {
+
+            preparedStatement.setInt(1, productId);
+
+            int rowsDeleted = preparedStatement.executeUpdate();
+            if (rowsDeleted != 1) {
+                System.err.println("Error. A problem occurred when deleting a product: " + productId);
+                throw new RuntimeException("Number of rows deleted didn't equal 1");
+            }
+
+        } catch (SQLException e) {
+            System.err.println("An error occurred: " + e);
+        }
+    }
 }
